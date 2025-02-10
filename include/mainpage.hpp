@@ -3,7 +3,7 @@
  * @author Bin-Hui Chen (GitHub: https://github.com/blackbhc)
  *
  * @section over Overview
- * This package explains the code structure of the galotfa project.
+ * This page explains the code structure of the galotfa project.
  *
  * - The C-style API be called at the synchronized time steps of N-body simulations.
  * -# include/galotfa.h
