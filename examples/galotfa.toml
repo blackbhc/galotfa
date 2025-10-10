@@ -54,19 +54,16 @@ recenter.radius = 10
 # Initial guess of the center position, aiming to avoid the system
 # center is always outside of the box.
 recenter.iguess = [0, 0, 0]
-# Whether align the x,y,z axes with the eigenvectors of the inertial
-# tensor or not. The calculation of the inertial tensor is based on
-# the image parameters. Again,  align=true requires the parameters
-# for image calculation and force image.enable=true.
-# NOTE: the alignment is done after the calculation of bar strength,
-# bar angles and other bar properties.
+# Whether align the z axes with the direction of the system's angular
+# momentum.
+# NOTE: if so, the alignment is done before the calculation of bar
+# strength, bar angles, and other bar properties.
 align.enable = true
-# Enclose radius for calculation of inertial tensor. For example, to
-# align the x,y,z axes with the bar principal axes, a value closing
-# to half of the bar radius is recommended.
-align.radius = 5
+# Enclose radius for calculation of total angular momentum.
+# Recommend values close to the disk radius.
+align.radius = 10
 # Parameters for calculations of x-y, x-z, and y-z projections.
-# TODO: images of streaming motion, their dispersion etc.
+# TODO: images of streaming motions, and their dispersions etc.
 image.enable = true
 image.halflength = 10.0 # the half length of the box to be projected.
 image.binnum = 100      # the number of bins in each direction.

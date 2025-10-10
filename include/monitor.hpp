@@ -82,11 +82,11 @@ private:
     void orbital_log( double time, unsigned particleNumber, const int* ids, const int* partTypes,
                       const double* masses, const double* coordinates, const double* velocities );
     // extract the data of a single component
-    static auto
-    component_data_extract( unsigned particleNumber, const int* partTypes, const double* masses,
-                            const double* potentials, const double* coordinates,
-                            const double*                      velocities,
-                            std::unique_ptr< otf::component >& comp ) -> monitor::compDataContainer;
+    static auto component_data_extract( unsigned particleNumber, const int* partTypes,
+                                        const double* masses, const double* potentials,
+                                        const double* coordinates, const double* velocities,
+                                        std::unique_ptr< otf::component >& comp )
+        -> monitor::compDataContainer;
     // analyze the data of a single component
     auto component_data_analyze( monitor::compDataContainer&        dataContainer,
                                  std::unique_ptr< otf::component >& comp ) const
@@ -103,9 +103,14 @@ private:
     static void recenter_coordinate( monitor::compDataContainer&        dataContainer,
                                      std::unique_ptr< otf::component >& comp,
                                      compResContainer&                  res );
-    // align the coordinates to the eigenvalues of the
-    static void align_coordinate( monitor::compDataContainer&        dataContainer,
-                                  std::unique_ptr< otf::component >& comp );
+    // align the z axis to the direction of total angular momentum
+    static void align_angular_momentum( monitor::compDataContainer&        dataContainer,
+                                        std::unique_ptr< otf::component >& comp );
+    // align the coordinates to the eigenvalues of the inertia tensor
+    // NOTE: This is the legacy align_coordinate API (replaced by align_angular_momentum in current
+    // version), and the code is remained for possible future usage on bar alignment.
+    static void align_inertia_tensor( monitor::compDataContainer&        dataContainer,
+                                      std::unique_ptr< otf::component >& comp );
     // bar info calculation
     static void bar_info( monitor::compDataContainer&        dataContainer,
                           std::unique_ptr< otf::component >& comp, compResContainer& res );

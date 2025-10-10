@@ -36,7 +36,7 @@ The installation steps are straightforward if you have installed all the depende
    cmake -S . -DCMAKE_BUILD_TYPE=Release -B build -DCMAKE_INSTALL_PREFIX=<dir you want to install with>
    ```
 
-   The last `CMAKE_INSTALL_PREFIX` can be ignored, if you want to instal `galotfa` under `~/.local/`.
+   The last `CMAKE_INSTALL_PREFIX` can be ignored, if you want to install `galotfa` under `~/.local/`.
 
 4. Compile and install the library: `cmake --build build --target install`, then everything done.
 
@@ -49,7 +49,6 @@ The installation steps are straightforward if you have installed all the depende
 ## Usage
 
 1. Modify your simulation program:
-
    - Use my `gadget4` fork with `galotfa`
 
      `git clone https://github.com/blackbhc/gadget4-fork.git ./gadget4`
@@ -92,7 +91,6 @@ The installation steps are straightforward if you have installed all the depende
 The structure of the `HDF5` output file produced by `galotfa`:
 
 - `component1`
-
   - Time
   - A2
   - BarAngle
@@ -100,7 +98,6 @@ The structure of the `HDF5` output file produced by `galotfa`:
   - ...
 
 - `Orbit`
-
   - Particle-X
 
     Restore the orbit of Particle-X as datasets, where X is the id of the particle. Each

@@ -154,7 +154,7 @@ component::component( string_view& compName, toml::table& compNodeTable )
         }
     }
 
-    // NOTE: the frame parameter is unused at present
+    // NOTE: the frame parameter is unused in the current version
     //
     // // frame
     // auto str = *compNodeTable[ "frame" ].value< string_view >();

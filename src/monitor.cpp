@@ -449,22 +449,22 @@ auto monitor::component_data_analyze( monitor::compDataContainer&        dataCon
 {
     compResContainer compRes;
 
-    // NOTE: recenter the system if necessary
+    // NOTE: recenter the system if specified
     if ( comp->recenter.enable )  // if not enable, do nothing
     {
         recenter_coordinate( dataContainer, comp, compRes );
+    }
+
+    // NOTE: align the coordinates (z axis->Ltot) if specified
+    if ( comp->align.enable )
+    {
+        align_angular_momentum( dataContainer, comp );
     }
 
     // NOTE: calculate the bar info if necessary: Sbar, Sbuckle, bar angle and
     if ( comp->sBar.enable or comp->barAngle.enable or comp->sBuckle.enable )
     {
         bar_info( dataContainer, comp, compRes );
-    }
-
-    // NOTE: align the system if necessary
-    if ( comp->align.enable )
-    {
-        align_coordinate( dataContainer, comp );
     }
 
     // NOTE: calculate the image if necessary
@@ -545,8 +545,8 @@ void monitor::recenter_coordinate( monitor::compDataContainer&        dataContai
  * @param dataContainer reference to the data container
  * @param comp wrapper of parameters for analysis of a single component
  */
-void monitor::align_coordinate( monitor::compDataContainer&        dataContainer,
-                                std::unique_ptr< otf::component >& comp )
+void monitor::align_angular_momentum( monitor::compDataContainer&        dataContainer,
+                                      std::unique_ptr< otf::component >& comp )
 {
     // array of the total angular momentum
     double Ltot[ 3 ] = { 0, 0, 0 };
@@ -612,9 +612,9 @@ void monitor::align_coordinate( monitor::compDataContainer&        dataContainer
     rotation[ 3 * 1 + 1 ] = 1;
     rotation[ 3 * 2 + 1 ] = -Ltot[ 1 ] / Ltot[ 2 ];
     // normalize the new y axis base vector
-    norm = sqrt( 1 * 1 + Ltot[ 1 ] * Ltot[ 1 ] / Ltot[ 2 ] * Ltot[ 2 ] );
-    for ( unsigned i = 0; i < 3; ++i )
-        rotation[ 3 * i + 1 ] /= norm;
+    norm = sqrt( 1 * 1 + Ltot[ 1 ] * Ltot[ 1 ] / ( Ltot[ 2 ] * Ltot[ 2 ] ) );
+    rotation[ 3 * 1 + 1 ] /= norm;
+    rotation[ 3 * 2 + 1 ] /= norm;
 
     // the new X axis as \Z\cross\Y
     rotation[ 3 * 0 + 0 ] = rotation[ 3 * 1 + 2 ] * rotation[ 3 * 2 + 1 ]
@@ -635,11 +635,11 @@ void monitor::align_coordinate( monitor::compDataContainer&        dataContainer
         y = dataContainer.coordinates[ i * 3 + 1 ];
         z = dataContainer.coordinates[ i * 3 + 2 ];
         dataContainer.coordinates[ i * 3 + 0 ] =
-            rotation[ 0 ] * x + rotation[ 1 ] * y + rotation[ 2 ] * z;
+            rotation[ 0 ] * x + rotation[ 3 ] * y + rotation[ 6 ] * z;
         dataContainer.coordinates[ i * 3 + 1 ] =
-            rotation[ 3 ] * x + rotation[ 4 ] * y + rotation[ 5 ] * z;
+            rotation[ 1 ] * x + rotation[ 4 ] * y + rotation[ 7 ] * z;
         dataContainer.coordinates[ i * 3 + 2 ] =
-            rotation[ 6 ] * x + rotation[ 7 ] * y + rotation[ 8 ] * z;
+            rotation[ 2 ] * x + rotation[ 5 ] * y + rotation[ 8 ] * z;
 
         // velocities
         x = dataContainer.velocities[ i * 3 + 0 ];
@@ -652,7 +652,123 @@ void monitor::align_coordinate( monitor::compDataContainer&        dataContainer
         dataContainer.velocities[ i * 3 + 2 ] =
             rotation[ 6 ] * x + rotation[ 7 ] * y + rotation[ 8 ] * z;
     }
-    // TODO: test the rotation part
+}
+
+/**
+ * @brief The API to align the coordinates to inertia tensor in a data container object.
+ *
+ * @param dataContainer reference to the data container
+ * @param comp wrapper of parameters for analysis of a single component
+ */
+void monitor::align_inertia_tensor( monitor::compDataContainer&        dataContainer,
+                                    std::unique_ptr< otf::component >& comp )
+{
+    // get the intertia tensor
+    double inertiaTensor[ 9 ] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    for ( unsigned i = 0; i < dataContainer.partNum; ++i )
+    {
+        // get the spherical radius of the particle
+        static double radius;
+        radius = sqrt(
+            dataContainer.coordinates[ i * 3 + 0 ] * dataContainer.coordinates[ i * 3 + 0 ]
+            + dataContainer.coordinates[ i * 3 + 1 ] * dataContainer.coordinates[ i * 3 + 1 ]
+            + dataContainer.coordinates[ i * 3 + 2 ] * dataContainer.coordinates[ i * 3 + 2 ] );
+
+        // check whether the particle locates in the enclosed radius
+        if ( comp->align.radius < radius )
+        {
+            continue;
+        }
+
+        // diagonal terms
+        inertiaTensor[ 0 * 3 + 0 ] +=
+            dataContainer.masses[ i ]
+            * ( dataContainer.coordinates[ i * 3 + 1 ] * dataContainer.coordinates[ i * 3 + 1 ]
+                + dataContainer.coordinates[ i * 3 + 2 ] * dataContainer.coordinates[ i * 3 + 2 ] );
+        inertiaTensor[ 1 * 3 + 1 ] +=
+            dataContainer.masses[ i ]
+            * ( dataContainer.coordinates[ i * 3 + 0 ] * dataContainer.coordinates[ i * 3 + 0 ]
+                + dataContainer.coordinates[ i * 3 + 2 ] * dataContainer.coordinates[ i * 3 + 2 ] );
+        inertiaTensor[ 2 * 3 + 2 ] +=
+            dataContainer.masses[ i ]
+            * ( dataContainer.coordinates[ i * 3 + 0 ] * dataContainer.coordinates[ i * 3 + 0 ]
+                + dataContainer.coordinates[ i * 3 + 1 ] * dataContainer.coordinates[ i * 3 + 1 ] );
+        // non-diagonal terms
+        inertiaTensor[ 0 * 3 + 1 ] += -dataContainer.masses[ i ]
+                                      * dataContainer.coordinates[ i * 3 + 0 ]
+                                      * dataContainer.coordinates[ i * 3 + 1 ];
+        inertiaTensor[ 0 * 3 + 2 ] += -dataContainer.masses[ i ]
+                                      * dataContainer.coordinates[ i * 3 + 0 ]
+                                      * dataContainer.coordinates[ i * 3 + 2 ];
+        inertiaTensor[ 1 * 3 + 0 ] += -dataContainer.masses[ i ]
+                                      * dataContainer.coordinates[ i * 3 + 1 ]
+                                      * dataContainer.coordinates[ i * 3 + 0 ];
+        inertiaTensor[ 1 * 3 + 2 ] += -dataContainer.masses[ i ]
+                                      * dataContainer.coordinates[ i * 3 + 1 ]
+                                      * dataContainer.coordinates[ i * 3 + 2 ];
+        inertiaTensor[ 2 * 3 + 0 ] += -dataContainer.masses[ i ]
+                                      * dataContainer.coordinates[ i * 3 + 2 ]
+                                      * dataContainer.coordinates[ i * 3 + 0 ];
+        inertiaTensor[ 2 * 3 + 1 ] += -dataContainer.masses[ i ]
+                                      * dataContainer.coordinates[ i * 3 + 2 ]
+                                      * dataContainer.coordinates[ i * 3 + 1 ];
+    }
+    // reduce the inertiaTensor from all mpi ranks
+    MPI_Allreduce( MPI_IN_PLACE, inertiaTensor, 9, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD );
+
+    // get the eigenvalues and eigenvectors
+    double eigenValues[ 3 ];
+    double eigenVectors[ 9 ];
+    eigen::eigens_sym_33( inertiaTensor, eigenValues, eigenVectors );
+
+    // lambda function to calculate the determinant of an matrix
+    auto determinant = []( const double* matrix ) -> double {
+        double det = 0;
+        det += matrix[ 0 ] * matrix[ 4 ] * matrix[ 8 ] + matrix[ 1 ] * matrix[ 5 ] * matrix[ 6 ]
+               + matrix[ 2 ] * matrix[ 3 ] * matrix[ 7 ];
+
+        det -= matrix[ 2 ] * matrix[ 4 ] * matrix[ 6 ] + matrix[ 1 ] * matrix[ 3 ] * matrix[ 8 ]
+               + matrix[ 0 ] * matrix[ 5 ] * matrix[ 7 ];
+        return det;
+    };
+
+    // make sure it's a rotation matrix
+    if ( determinant( eigenVectors ) < 0 )
+    {
+        eigenVectors[ 2 ] *= -1;
+        eigenVectors[ 5 ] *= -1;
+        eigenVectors[ 8 ] *= -1;
+    }
+    // NOTE: rotation matrix is Transpose(EigenMatrix) x Identity
+
+    // rotate the coordinates and velocities
+    static double x = 0;
+    static double y = 0;
+    static double z = 0;
+    for ( unsigned i = 0; i < dataContainer.partNum; ++i )
+    {
+        // coordinates
+        x = dataContainer.coordinates[ i * 3 + 0 ];
+        y = dataContainer.coordinates[ i * 3 + 1 ];
+        z = dataContainer.coordinates[ i * 3 + 2 ];
+        dataContainer.coordinates[ i * 3 + 0 ] =
+            eigenVectors[ 0 ] * x + eigenVectors[ 3 ] * y + eigenVectors[ 6 ] * z;
+        dataContainer.coordinates[ i * 3 + 1 ] =
+            eigenVectors[ 1 ] * x + eigenVectors[ 4 ] * y + eigenVectors[ 7 ] * z;
+        dataContainer.coordinates[ i * 3 + 2 ] =
+            eigenVectors[ 2 ] * x + eigenVectors[ 5 ] * y + eigenVectors[ 8 ] * z;
+
+        // velocities
+        x = dataContainer.velocities[ i * 3 + 0 ];
+        y = dataContainer.velocities[ i * 3 + 1 ];
+        z = dataContainer.velocities[ i * 3 + 2 ];
+        dataContainer.velocities[ i * 3 + 0 ] =
+            eigenVectors[ 0 ] * x + eigenVectors[ 3 ] * y + eigenVectors[ 6 ] * z;
+        dataContainer.velocities[ i * 3 + 1 ] =
+            eigenVectors[ 1 ] * x + eigenVectors[ 4 ] * y + eigenVectors[ 7 ] * z;
+        dataContainer.velocities[ i * 3 + 2 ] =
+            eigenVectors[ 2 ] * x + eigenVectors[ 5 ] * y + eigenVectors[ 8 ] * z;
+    }
 }
 
 /**

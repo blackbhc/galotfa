@@ -116,7 +116,6 @@ int main()
         if ( comp.second->align.enable )
         {
             INFO( "Alignment of this component is enabled." );
-            INFO( "Initial guess of the recenter:" );
             INFO( "Potential enclosed radius for align: %g.", comp.second->align.radius );
         }
         if ( comp.second->image.enable )
