@@ -362,10 +362,11 @@ void monitor::orbital_log( const double time, const unsigned particleNumber, con
  * @return an object of otf::monitor::compDataContainer, which is the container of the extracted
  * data
  */
-auto monitor::component_data_extract(
-    unsigned particleNumber, const int* partType, const double* masses, const double* potentials,
-    const double* coordinates, const double* velocities,
-    unique_ptr< otf::component >& comp ) -> monitor::compDataContainer
+auto monitor::component_data_extract( unsigned particleNumber, const int* partType,
+                                      const double* masses, const double* potentials,
+                                      const double* coordinates, const double* velocities,
+                                      unique_ptr< otf::component >& comp )
+    -> monitor::compDataContainer
 {
     unsigned         count = 0;
     vector< double > extractedMasses;
@@ -547,8 +548,9 @@ void monitor::recenter_coordinate( monitor::compDataContainer&        dataContai
 void monitor::align_coordinate( monitor::compDataContainer&        dataContainer,
                                 std::unique_ptr< otf::component >& comp )
 {
-    // get the intertia tensor
-    double inertiaTensor[ 9 ] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    // array of the total angular momentum
+    double Ltot[ 3 ] = { 0, 0, 0 };
+    // get the Lz, tot
     for ( unsigned i = 0; i < dataContainer.partNum; ++i )
     {
         // get the spherical radius of the particle
@@ -564,66 +566,63 @@ void monitor::align_coordinate( monitor::compDataContainer&        dataContainer
             continue;
         }
 
-        // diagonal terms
-        inertiaTensor[ 0 * 3 + 0 ] +=
+        // add into the Lz,tot
+        Ltot[ 0 ] +=
             dataContainer.masses[ i ]
-            * ( dataContainer.coordinates[ i * 3 + 1 ] * dataContainer.coordinates[ i * 3 + 1 ]
-                + dataContainer.coordinates[ i * 3 + 2 ] * dataContainer.coordinates[ i * 3 + 2 ] );
-        inertiaTensor[ 1 * 3 + 1 ] +=
+            * ( dataContainer.coordinates[ i * 3 + 1 ] * dataContainer.velocities[ i * 3 + 2 ]
+                - dataContainer.coordinates[ i * 3 + 2 ] * dataContainer.velocities[ i * 3 + 1 ] );
+        Ltot[ 1 ] +=
             dataContainer.masses[ i ]
-            * ( dataContainer.coordinates[ i * 3 + 0 ] * dataContainer.coordinates[ i * 3 + 0 ]
-                + dataContainer.coordinates[ i * 3 + 2 ] * dataContainer.coordinates[ i * 3 + 2 ] );
-        inertiaTensor[ 2 * 3 + 2 ] +=
+            * ( dataContainer.coordinates[ i * 3 + 2 ] * dataContainer.velocities[ i * 3 + 0 ]
+                - dataContainer.coordinates[ i * 3 + 0 ] * dataContainer.velocities[ i * 3 + 2 ] );
+        Ltot[ 2 ] +=
             dataContainer.masses[ i ]
-            * ( dataContainer.coordinates[ i * 3 + 0 ] * dataContainer.coordinates[ i * 3 + 0 ]
-                + dataContainer.coordinates[ i * 3 + 1 ] * dataContainer.coordinates[ i * 3 + 1 ] );
-        // non-diagonal terms
-        inertiaTensor[ 0 * 3 + 1 ] += -dataContainer.masses[ i ]
-                                      * dataContainer.coordinates[ i * 3 + 0 ]
-                                      * dataContainer.coordinates[ i * 3 + 1 ];
-        inertiaTensor[ 0 * 3 + 2 ] += -dataContainer.masses[ i ]
-                                      * dataContainer.coordinates[ i * 3 + 0 ]
-                                      * dataContainer.coordinates[ i * 3 + 2 ];
-        inertiaTensor[ 1 * 3 + 0 ] += -dataContainer.masses[ i ]
-                                      * dataContainer.coordinates[ i * 3 + 1 ]
-                                      * dataContainer.coordinates[ i * 3 + 0 ];
-        inertiaTensor[ 1 * 3 + 2 ] += -dataContainer.masses[ i ]
-                                      * dataContainer.coordinates[ i * 3 + 1 ]
-                                      * dataContainer.coordinates[ i * 3 + 2 ];
-        inertiaTensor[ 2 * 3 + 0 ] += -dataContainer.masses[ i ]
-                                      * dataContainer.coordinates[ i * 3 + 2 ]
-                                      * dataContainer.coordinates[ i * 3 + 0 ];
-        inertiaTensor[ 2 * 3 + 1 ] += -dataContainer.masses[ i ]
-                                      * dataContainer.coordinates[ i * 3 + 2 ]
-                                      * dataContainer.coordinates[ i * 3 + 1 ];
+            * ( dataContainer.coordinates[ i * 3 + 0 ] * dataContainer.velocities[ i * 3 + 1 ]
+                - dataContainer.coordinates[ i * 3 + 1 ] * dataContainer.velocities[ i * 3 + 0 ] );
     }
-    // reduce the inertiaTensor from all mpi ranks
-    MPI_Allreduce( MPI_IN_PLACE, inertiaTensor, 9, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD );
+    // reduce the Lz,tot from all mpi ranks
+    MPI_Allreduce( MPI_IN_PLACE, Ltot, 3, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD );
 
-    // get the eigenvalues and eigenvectors
-    double eigenValues[ 3 ];
-    double eigenVectors[ 9 ];
-    eigen::eigens_sym_33( inertiaTensor, eigenValues, eigenVectors );
+    // tranlate the follow python code to c++ codes
+    // newZ = Ltot / np.linalg.norm(Ltot)  # new z axis
+    //
+    // # new y axis: the normal vector for the intersection line between the new Oxy plane and old
+    // # x=0 plane
+    // tmp = -newZ[1] / newZ[2]  # the z-comp of the new y axis
+    // newY = np.array([0, 1, tmp])  # new y axis
+    // newY = newY / np.linalg.norm(newY)  # normalization
+    //
+    // newX = np.cross(newY, newZ)  # new x axis by cross product
+    // newX = newX / np.linalg.norm(newX)  # normalization
+    // rotation = np.column_stack( ( newX, newY, newZ ) ).T
 
-    // lambda function to calculate the determinant of an matrix
-    auto determinant = []( const double* matrix ) -> double {
-        double det = 0;
-        det += matrix[ 0 ] * matrix[ 4 ] * matrix[ 8 ] + matrix[ 1 ] * matrix[ 5 ] * matrix[ 6 ]
-               + matrix[ 2 ] * matrix[ 3 ] * matrix[ 7 ];
+    // array to of the rotation matrix
+    static double rotation[ 9 ] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    static double norm          = 0;
+    norm = sqrt( Ltot[ 0 ] * Ltot[ 0 ] + Ltot[ 1 ] * Ltot[ 1 ] + Ltot[ 2 ] * Ltot[ 2 ] );
 
-        det -= matrix[ 2 ] * matrix[ 4 ] * matrix[ 6 ] + matrix[ 1 ] * matrix[ 3 ] * matrix[ 8 ]
-               + matrix[ 0 ] * matrix[ 5 ] * matrix[ 7 ];
-        return det;
-    };
+    // the new Z axis
+    rotation[ 3 * 0 + 2 ] = Ltot[ 0 ] / norm;
+    rotation[ 3 * 1 + 2 ] = Ltot[ 1 ] / norm;
+    rotation[ 3 * 2 + 2 ] = Ltot[ 2 ] / norm;
 
-    // make sure it's a rotation matrix
-    if ( determinant( eigenVectors ) < 0 )
-    {
-        eigenVectors[ 2 ] *= -1;
-        eigenVectors[ 5 ] *= -1;
-        eigenVectors[ 8 ] *= -1;
-    }
-    // NOTE: rotation matrix is Transpose(EigenMatrix) x Identity
+    // the new y axis as the normal vector for the intersection line between the new Oxy plane and
+    // old x=0 plane
+    rotation[ 3 * 0 + 1 ] = 0;
+    rotation[ 3 * 1 + 1 ] = 1;
+    rotation[ 3 * 2 + 1 ] = -Ltot[ 1 ] / Ltot[ 2 ];
+    // normalize the new y axis base vector
+    norm = sqrt( 1 * 1 + Ltot[ 1 ] * Ltot[ 1 ] / Ltot[ 2 ] * Ltot[ 2 ] );
+    for ( unsigned i = 0; i < 3; ++i )
+        rotation[ 3 * i + 1 ] /= norm;
+
+    // the new X axis as \Z\cross\Y
+    rotation[ 3 * 0 + 0 ] = rotation[ 3 * 1 + 2 ] * rotation[ 3 * 2 + 1 ]
+                            - rotation[ 3 * 2 + 2 ] * rotation[ 3 * 1 + 1 ];
+    rotation[ 3 * 1 + 0 ] = rotation[ 3 * 2 + 2 ] * rotation[ 3 * 0 + 1 ]
+                            - rotation[ 3 * 0 + 2 ] * rotation[ 3 * 2 + 1 ];
+    rotation[ 3 * 2 + 0 ] = rotation[ 3 * 0 + 2 ] * rotation[ 3 * 1 + 1 ]
+                            - rotation[ 3 * 1 + 2 ] * rotation[ 3 * 0 + 1 ];
 
     // rotate the coordinates and velocities
     static double x = 0;
@@ -636,22 +635,22 @@ void monitor::align_coordinate( monitor::compDataContainer&        dataContainer
         y = dataContainer.coordinates[ i * 3 + 1 ];
         z = dataContainer.coordinates[ i * 3 + 2 ];
         dataContainer.coordinates[ i * 3 + 0 ] =
-            eigenVectors[ 0 ] * x + eigenVectors[ 3 ] * y + eigenVectors[ 6 ] * z;
+            rotation[ 0 ] * x + rotation[ 1 ] * y + rotation[ 2 ] * z;
         dataContainer.coordinates[ i * 3 + 1 ] =
-            eigenVectors[ 1 ] * x + eigenVectors[ 4 ] * y + eigenVectors[ 7 ] * z;
+            rotation[ 3 ] * x + rotation[ 4 ] * y + rotation[ 5 ] * z;
         dataContainer.coordinates[ i * 3 + 2 ] =
-            eigenVectors[ 2 ] * x + eigenVectors[ 5 ] * y + eigenVectors[ 8 ] * z;
+            rotation[ 6 ] * x + rotation[ 7 ] * y + rotation[ 8 ] * z;
 
         // velocities
         x = dataContainer.velocities[ i * 3 + 0 ];
         y = dataContainer.velocities[ i * 3 + 1 ];
         z = dataContainer.velocities[ i * 3 + 2 ];
         dataContainer.velocities[ i * 3 + 0 ] =
-            eigenVectors[ 0 ] * x + eigenVectors[ 3 ] * y + eigenVectors[ 6 ] * z;
+            rotation[ 0 ] * x + rotation[ 1 ] * y + rotation[ 2 ] * z;
         dataContainer.velocities[ i * 3 + 1 ] =
-            eigenVectors[ 1 ] * x + eigenVectors[ 4 ] * y + eigenVectors[ 7 ] * z;
+            rotation[ 3 ] * x + rotation[ 4 ] * y + rotation[ 5 ] * z;
         dataContainer.velocities[ i * 3 + 2 ] =
-            eigenVectors[ 2 ] * x + eigenVectors[ 5 ] * y + eigenVectors[ 8 ] * z;
+            rotation[ 6 ] * x + rotation[ 7 ] * y + rotation[ 8 ] * z;
     }
     // TODO: test the rotation part
 }
