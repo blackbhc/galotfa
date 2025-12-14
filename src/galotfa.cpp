@@ -1,5 +1,5 @@
-#include "../include/galotfa.h"
-#include "../include/monitor.hpp"
+#include "galotfa.h"
+#include "monitor.hpp"
 
 /**
  * @brief API for n body simulation, without sub-grid physics parameters and redshifts.

@@ -1,5 +1,5 @@
-#include "../include/statistic.hpp"
-#include "../include/myprompt.hpp"
+#include "statistic.hpp"
+#include "myprompt.hpp"
 #include <cmath>
 #include <cstdlib>
 #include <cstring>

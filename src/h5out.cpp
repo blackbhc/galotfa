@@ -1,5 +1,5 @@
-#include "../include/h5out.hpp"
-#include "../include/myprompt.hpp"
+#include "h5out.hpp"
+#include "myprompt.hpp"
 #include <H5Dpublic.h>
 #include <H5Fpublic.h>
 #include <H5Gpublic.h>

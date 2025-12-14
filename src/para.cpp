@@ -1,7 +1,7 @@
-#include "../include/para.hpp"
-#include "../include/myprompt.hpp"
-#include "../include/recenter.hpp"
-#include "../include/toml.hpp"
+#include "para.hpp"
+#include "myprompt.hpp"
+#include "recenter.hpp"
+#include "toml.hpp"
 #include <cassert>
 #include <memory>
 #include <mpi.h>

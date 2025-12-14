@@ -1,4 +1,4 @@
-#include "../include/barinfo.hpp"
+#include "barinfo.hpp"
 #include <cmath>
 #include <mpi.h>
 using namespace std;

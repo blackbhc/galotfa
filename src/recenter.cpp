@@ -1,5 +1,5 @@
-#include "../include/recenter.hpp"
-#include "../include/myprompt.hpp"
+#include "recenter.hpp"
+#include "myprompt.hpp"
 #include <algorithm>
 #include <cmath>
 #include <memory>

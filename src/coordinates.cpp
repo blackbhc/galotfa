@@ -1,5 +1,5 @@
-#include "../include/coordinate.hpp"
-#include "../include/myprompt.hpp"
+#include "coordinate.hpp"
+#include "myprompt.hpp"
 #include <cmath>
 #include <numbers>
 using namespace std;

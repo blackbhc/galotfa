@@ -1,6 +1,6 @@
-#include "../include/selector.hpp"
-#include "../include/myprompt.hpp"
-#include "../include/para.hpp"
+#include "selector.hpp"
+#include "myprompt.hpp"
+#include "para.hpp"
 #include <algorithm>
 #include <cstdlib>
 #include <fstream>

@@ -5,7 +5,7 @@
 
 #ifndef SELECTOR_HEADER
 #define SELECTOR_HEADER
-#include "../include/para.hpp"
+#include "para.hpp"
 #include <memory>
 #include <string>
 #include <vector>
