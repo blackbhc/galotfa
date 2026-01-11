@@ -74,19 +74,19 @@ public:
 #else
 private:
 #endif
-    hid_t                                  file;
-    std::unordered_map<std::string, hid_t> groups;  // group handles
+    hid_t                                  m_file;
+    std::unordered_map<std::string, hid_t> m_groups;  // group handles
 
     // dataset handles under a parent node
     // relation: group -> dataset name -> pointer of a handle
     std::unordered_map<
         hid_t,
         std::unordered_map<std::string, std::unique_ptr<dataset_handle>>>
-                datasetPtrs;
+                m_datasetPtrs;
     auto        create_group_if_necessary(const std::string& groupName) -> int;
     auto        ensure_dataset_empty(const std::string& groupName,
                                      const std::string& datasetName) -> int;
-    std::string filename;
+    std::string m_filename;
 };
 
 void Backup_Old_Logs_If_Necessary(const std::string& dir,

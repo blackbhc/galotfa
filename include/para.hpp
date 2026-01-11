@@ -134,9 +134,9 @@ public:
         RANDOM
     };
 
-    bool                enable;  // enable orbital log
-    int                 period;  // log period
-    id_selection_method method;  // id determination method
+    bool                m_enable;  // enable orbital log
+    int                 period;    // log period
+    id_selection_method method;    // id determination method
     std::string         idfile =
         "not used";        // if method is txt file, give the file name
     double fraction = -1;  // if method is random sample, give the fraction

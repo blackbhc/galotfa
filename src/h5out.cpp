@@ -59,27 +59,27 @@ void Create_Dir_If_Necessary(const string& dir)
 }
 
 h5_out::h5_out(const string& dir, const string& filename)
+    : m_filename{dir + "/" + filename}
 {
     Create_Dir_If_Necessary(dir);
     Backup_Old_Logs_If_Necessary(dir, filename);
-    this->filename = dir + "/" + filename;
-    this->file = H5Fcreate(this->filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT,
-                           H5P_DEFAULT);
+    m_file =
+        H5Fcreate(m_filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 }
 
 h5_out::~h5_out()
 {
-    datasetPtrs.clear();
+    m_datasetPtrs.clear();
 
     // Second: close the groups
-    for (auto& group : groups)
+    for (auto& group : m_groups)
     {
         H5Gclose(group.second);
     }
-    groups.clear();
+    m_groups.clear();
 
     // Last: close the file
-    H5Fclose(file);
+    H5Fclose(m_file);
 }
 
 /**
@@ -101,7 +101,7 @@ auto h5_out::create_dataset_in_group(const string&           datasetName,
     // ensure the parent group exists
     int const returnCode = create_group_if_necessary(groupName);
     // get the group id
-    hid_t     groupId = groups[groupName];
+    hid_t     groupId = m_groups[groupName];
     if (returnCode != 0)
     {
         return returnCode;
@@ -117,7 +117,7 @@ auto h5_out::create_dataset_in_group(const string&           datasetName,
     }
     unique_ptr<dataset_handle> ptrToHandle = make_unique<dataset_handle>(
         groupId, datasetName, sizeInEachDim, dataType);
-    datasetPtrs[groupId][datasetName] = std::move(ptrToHandle);
+    m_datasetPtrs[groupId][datasetName] = std::move(ptrToHandle);
 
     return 0;
 }
@@ -132,9 +132,9 @@ auto h5_out::create_dataset_in_group(const string&           datasetName,
 auto h5_out::ensure_dataset_empty(const string& groupName,
                                   const string& datasetName) -> int
 {
-    hid_t const groupId  = groups[groupName];
+    hid_t const groupId  = m_groups[groupName];
     bool const  nonEmpty = any_of(
-        datasetPtrs[groupId].begin(), datasetPtrs[groupId].end(),
+        m_datasetPtrs[groupId].begin(), m_datasetPtrs[groupId].end(),
         [datasetName](const auto& pair) { return pair.first == datasetName; });
     if (nonEmpty)
     {
@@ -152,21 +152,21 @@ auto h5_out::ensure_dataset_empty(const string& groupName,
 auto h5_out::create_group_if_necessary(const string& groupName) -> int
 {
     // check whether the group already exists, if exists then return
-    if (static_cast<unsigned>(groups.contains(groupName)) != 0U)
+    if (static_cast<unsigned>(m_groups.contains(groupName)) != 0U)
     {
         return 0;
     }
 
-    hid_t const group = H5Gcreate2(file, groupName.c_str(), H5P_DEFAULT,
+    hid_t const group = H5Gcreate2(m_file, groupName.c_str(), H5P_DEFAULT,
                                    H5P_DEFAULT, H5P_DEFAULT);
     if (group == H5I_INVALID_HID)  // if creation failed
     {
-        ERROR("File [%s]: group [%s] creatation failed.", filename.c_str(),
+        ERROR("File [%s]: group [%s] creatation failed.", m_filename.c_str(),
               groupName.c_str());
         return -1;
     }
 
-    groups[groupName] = group;
+    m_groups[groupName] = group;
 
 
     return 0;
@@ -244,21 +244,21 @@ auto h5_out::flush_single_block(const string& groupName,
                                 const string& datasetName,
                                 const void*   dataBuffer) -> int
 {
-    if (static_cast<unsigned>(groups.contains(groupName)) == 0U)
+    if (static_cast<unsigned>(m_groups.contains(groupName)) == 0U)
     {
         ERROR("Flushing to a non existent group [%s]!", groupName.c_str())
         return -1;
     }
 
-    hid_t const group = groups[groupName];
-    if (static_cast<unsigned>(datasetPtrs[group].contains(datasetName)) == 0U)
+    hid_t const group = m_groups[groupName];
+    if (static_cast<unsigned>(m_datasetPtrs[group].contains(datasetName)) == 0U)
     {
         ERROR("Flushing to a non existent dataset [%s] in group [%s]!",
               datasetName.c_str(), groupName.c_str())
         return -1;
     }
 
-    datasetPtrs[group][datasetName]->flush_single_block(dataBuffer);
+    m_datasetPtrs[group][datasetName]->flush_single_block(dataBuffer);
     return 0;
 }
 

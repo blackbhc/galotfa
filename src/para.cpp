@@ -99,7 +99,7 @@ runtime_para::runtime_para(const std::string_view& tomlParaFile)
 
     // NOTE: if there is no any component and orbital logs are enables, then
     // toggle off the on-the-fly analysis
-    if (comps.size() == 0 and (not orbit->enable))
+    if (comps.size() == 0 and (not orbit->m_enable))
         enableOtf = false;
 }
 
@@ -278,9 +278,9 @@ component::component(string_view& compName, toml::table& compNodeTable)
 orbit::orbit(toml::table& orbitNode)
 {
     // whether enable orbital logs
-    enable = *orbitNode["enable"].value<bool>();
+    m_enable = *orbitNode["enable"].value<bool>();
 
-    if (not enable)
+    if (not m_enable)
     {
         return;
     }

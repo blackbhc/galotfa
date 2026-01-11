@@ -217,7 +217,7 @@ auto orbit_selector::select(const unsigned particleNumber,
                             const double*  velocity) const
     -> unique_ptr<dataContainer>
 {
-    if (not para.orbit->enable)
+    if (not para.orbit->m_enable)
     {
         // if the orbital log is not enabled, just ignore the function
         return nullptr;

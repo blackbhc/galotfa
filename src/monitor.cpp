@@ -47,7 +47,7 @@ void print_global_part(otf::runtime_para& para)
 void print_orbital_part(otf::runtime_para& para)
 {
     INFO("ORBITAL LOG PARAMETERS:");
-    if (para.orbit->enable)
+    if (para.orbit->m_enable)
     {
         INFO("Orbital log is enabled.");
     }
@@ -285,7 +285,7 @@ void monitor::main_analysis_api(const double   time,
     }
 
     // First: orbital logs part
-    if (para.orbit->enable)
+    if (para.orbit->m_enable)
     {
         orbital_log(time, particleNumber, ids, partTypes, masses, coordinates,
                     velocities);
