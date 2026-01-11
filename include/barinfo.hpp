@@ -21,11 +21,16 @@ public:
         double amplitude;  // amplitude of the m=2 Fourier mode
         double phase;      // phase angle of the m=2 Fourier mode
     };
-    static auto A0( unsigned partNum, const double* masses ) -> double;
-    static auto A2( unsigned partNum, const double* masses, const double* phis ) -> double;
-    static auto bar_angle( unsigned partNum, const double* masses, const double* phis ) -> double;
-    static auto Sbuckle( unsigned partNum, const double* masses, const double* phis,
-                         const double* zeds ) -> double;
+    static auto A0(unsigned partNum, const double* masses) -> double;
+    static auto A2(unsigned partNum, const double* masses, const double* phis)
+        -> double;
+    static auto bar_angle(unsigned      partNum,
+                          const double* masses,
+                          const double* phis) -> double;
+    static auto Sbuckle(unsigned      partNum,
+                        const double* masses,
+                        const double* phis,
+                        const double* zeds) -> double;
 };
 
 }  // namespace otf

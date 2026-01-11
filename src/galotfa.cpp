@@ -2,7 +2,8 @@
 #include "monitor.hpp"
 
 /**
- * @brief API for n body simulation, without sub-grid physics parameters and redshifts.
+ * @brief API for n body simulation, without sub-grid physics parameters and
+ * redshifts.
  *
  * @param currentTime simulation time, in simulation unit.
  * @param particleNumber number of particles in this mpi.
@@ -13,14 +14,20 @@
  * @param velocities velocities in simulation units.
  * @return
  */
-extern "C" void OnTheFly_Analysis_Nbody( const double currentTime, const unsigned particleNumber,
-                                         const int* particleIDs, const int* particleTypes,
-                                         const double* masses, const double* potentials,
-                                         const double* coordinates, const double* velocities )
+extern "C" void OnTheFly_Analysis_Nbody(const double   currentTime,
+                                        const unsigned particleNumber,
+                                        const int*     particleIDs,
+                                        const int*     particleTypes,
+                                        const double*  masses,
+                                        const double*  potentials,
+                                        const double*  coordinates,
+                                        const double*  velocities)
 {
-    static otf::monitor otfServer( "./galotfa.toml" );  // create the on-the-fly analysis server
+    static otf::monitor otfServer(
+        "./galotfa.toml");  // create the on-the-fly analysis server
 
     // call the analysis API
-    otfServer.main_analysis_api( currentTime, particleNumber, particleIDs, particleTypes, masses,
-                                 potentials, coordinates, velocities );
+    otfServer.main_analysis_api(currentTime, particleNumber, particleIDs,
+                                particleTypes, masses, potentials, coordinates,
+                                velocities);
 }

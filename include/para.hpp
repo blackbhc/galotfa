@@ -5,8 +5,8 @@
 
 #ifndef PARA_HEADER
 #define PARA_HEADER
-#include "toml.hpp"
 #include "recenter.hpp"
+#include "toml.hpp"
 #include <cstdint>
 #include <memory>
 #include <string_view>
@@ -24,10 +24,10 @@ constexpr auto vecDim = 3;
  */
 struct recenter_para
 {
-    bool                 enable;
-    double               radius;                  // enclose radius used for coordinate recenter
-    double               initialGuess[ vecDim ];  // initial guess of the coordinate center
-    otf::recenter_method method;                  // recenter method
+    bool   enable;
+    double radius;                // enclose radius used for coordinate recenter
+    double initialGuess[vecDim];  // initial guess of the coordinate center
+    otf::recenter_method method;  // recenter method
 };
 
 /**
@@ -86,10 +86,15 @@ struct a2_profile_para
 struct orbit_recenter_para : recenter_para
 {
     // the anchor type of particles used for recenter
-    std::vector< unsigned > anchorIds;
+    std::vector<unsigned> anchorIds;
 };
 
-enum class coordinate_frame : std::uint8_t { CYLINDRICAL = 0, SPHERICAL, CARTESIAN };
+enum class coordinate_frame : std::uint8_t
+{
+    CYLINDRICAL = 0,
+    SPHERICAL,
+    CARTESIAN
+};
 
 /**
  * @class component
@@ -98,18 +103,18 @@ enum class coordinate_frame : std::uint8_t { CYLINDRICAL = 0, SPHERICAL, CARTESI
  */
 struct component
 {
-    component( std::string_view& compName, toml::table& compNodeTable );
-    std::string             compName;   // name of the component
-    std::vector< unsigned > types;      // particle types in this component
-    int                     period;     // analysis period
-    recenter_para           recenter;   // parameter of coordinate recenter
-    coordinate_frame        frame;      // coordinate frame type
-    align_para              align;      // whether align coordinates with the inertia tensor
-    image_para              image;      // parameter of the spatial image part
-    basic_bar_para          sBar;       // bar strength parameter
-    basic_bar_para          barAngle;   // bar angle parameter
-    basic_bar_para          sBuckle;    // buckling strength parameter
-    a2_profile_para         A2profile;  // A2(R) profile parameter
+    component(std::string_view& compName, toml::table& compNodeTable);
+    std::string           compName;  // name of the component
+    std::vector<unsigned> types;     // particle types in this component
+    int                   period;    // analysis period
+    recenter_para         recenter;  // parameter of coordinate recenter
+    coordinate_frame      frame;     // coordinate frame type
+    align_para      align;  // whether align coordinates with the inertia tensor
+    image_para      image;  // parameter of the spatial image part
+    basic_bar_para  sBar;   // bar strength parameter
+    basic_bar_para  barAngle;   // bar angle parameter
+    basic_bar_para  sBuckle;    // buckling strength parameter
+    a2_profile_para A2profile;  // A2(R) profile parameter
 };
 
 /**
@@ -120,39 +125,45 @@ struct component
 class orbit
 {
 public:
-    orbit( toml::table& orbitNodeTable );
-    // method for id log: TXTFILE to use a text file of id list, and RANDOM for random selection
-    // according to specified parameters.
-    enum class id_selection_method : std::uint8_t { TXTFILE = 0, RANDOM };
+    orbit(toml::table& orbitNodeTable);
+    // method for id log: TXTFILE to use a text file of id list, and RANDOM for
+    // random selection according to specified parameters.
+    enum class id_selection_method : std::uint8_t
+    {
+        TXTFILE = 0,
+        RANDOM
+    };
 
-    bool                enable;                 // enable orbital log
-    int                 period;                 // log period
-    id_selection_method method;                 // id determination method
-    std::string         idfile   = "not used";  // if method is txt file, give the file name
-    double              fraction = -1;          // if method is random sample, give the fraction
-    std::vector< int >  sampleTypes;            // particle types to be sampled
-    orbit_recenter_para recenter;               // whether recenter the coordinate of orbits
+    bool                enable;  // enable orbital log
+    int                 period;  // log period
+    id_selection_method method;  // id determination method
+    std::string         idfile =
+        "not used";        // if method is txt file, give the file name
+    double fraction = -1;  // if method is random sample, give the fraction
+    std::vector<int>    sampleTypes;  // particle types to be sampled
+    orbit_recenter_para recenter;  // whether recenter the coordinate of orbits
 };
 
 /**
  * @class runtime_para
- * @brief Container of the runtime parameter, designed to be work in each mpi rank.
+ * @brief Container of the runtime parameter, designed to be work in each mpi
+ * rank.
  *
  */
 class runtime_para
 {
 public:
-    runtime_para( const std::string_view& tomlParaFile );
+    runtime_para(const std::string_view& tomlParaFile);
     bool        enableOtf;  // whether enable on-the-fly analysis
     std::string outputDir;  // output directory of the logs
     std::string fileName;   // prefix of the log file
     unsigned    maxIter;    // specify the maximal iteration times
-    double      epsilon;    // specify the equal threshold of floating-point numbers
+    double epsilon;  // specify the equal threshold of floating-point numbers
 
     // hash map of parameter for each component
-    std::unordered_map< std::string, std::unique_ptr< otf::component > > comps;
+    std::unordered_map<std::string, std::unique_ptr<otf::component>> comps;
     // parameter pointer of orbital logs
-    std::unique_ptr< otf::orbit > orbit;
+    std::unique_ptr<otf::orbit>                                      orbit;
 };
 
 }  // namespace otf
