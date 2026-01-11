@@ -1,46 +1,29 @@
-title = "galotfa runtime parameters"
-[global]
-enable = true
-outdir = "./otfLogs"      # path of the log directorys
-filename = "galotfa.hdf5" # filename of the log file
-maxiter = 25              # default 25
-epsilon = 1e-10           # default 1e-8
-[component1]
-types = [2]
-period = 7
-# NOTE: this parameter is unused at present
-frame = "cyl"
-recenter.enable = true
-recenter.method = "com"
-recenter.radius = 100
-recenter.iguess = [0, 0, 0]
-align.enable = true
-align.radius = 10
-image.enable = true
-image.halflength = 20.0     # the half length of the box to be projected.
-image.binnum = 3            # the number of bins in each direction.
-A2.enable = true            # if true, require the following 2 parameters
-A2.rmin = 0.1
-A2.rmax = 10
-barangle.enable = true      # if true, require the following 3 parameters
-barangle.rmin = 0.1
-barangle.rmax = 10
-buckle.enable = true        # if true, require the following 2 parameters
-buckle.rmin = 0.1
-buckle.rmax = 10
-A2profile.enable = true
-A2profile.rmin = 0.01
-A2profile.rmax = 10
-A2profile.binnum = 20
-[orbit]
-enable = false
-period = 10
-method = "random"
-idfile = "../validation/idlist.txt"
-fraction = 0.9
-logtypes = [2]
-recenter.enable = true
-recenter.method = "mbp"
-recenter.radius = 10
-recenter.iguess = [0, 0, 0]
-recenter.anchorids = [2]
+title               = "galotfa runtime parameters"
+    [global] enable = true outdir =
+        "./otfLogs" #path of the log directorys      filename =
+            "galotfa.hdf5" #filename of the log file maxiter =
+                25 #default 25 epsilon =
+                    1e-10 #default 1e-8 [component1] types = [2] period = 7
+#NOTE : this parameter is unused at present
+    frame = "cyl" recenter.enable = true recenter.method =
+        "com" recenter.radius = 100 recenter.iguess = [ 0, 0, 0 ] align.enable =
+            true align.radius = 10 image.enable = true image.halflength =
+                20.0 #the half length of the box to be projected.image.binnum =
+                    3 #the number of bins in each      direction.A2.enable =
+                        true #if true,
+             require the following 2 parameters A2.rmin = 0.1 A2.rmax =
+                 10 barangle.enable                     = true #if true,
+             require the following 3 parameters barangle.rmin =
+                 0.1 barangle.rmax = 10 buckle.enable       = true #if true,
+             require the following 2 parameters buckle.rmin = 0.1 buckle.rmax =
+                 10 A2profile.enable       = true A2profile.rmin =
+                     0.01 A2profile.rmax   = 10 A2profile.binnum =
+                         20 [orbit] enable = false period = 10 method =
+                             "random" idfile =
+                                 "../validation/idlist.txt" fraction =
+                                     0.9 logtypes = [2] recenter.enable =
+                                         true recenter.method =
+                                             "mbp" recenter.radius =
+                                                 10 recenter.iguess = [
+                                                     0, 0, 0
+                                                 ] recenter.anchorids = [2]
