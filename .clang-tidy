@@ -1,0 +1,4 @@
+Checks: "-*,bugprone-*,-bugprone-exception-escape,clang-analyzer-*,cert-*,concurrency-*,cppcoreguidelines-*,-cppcoreguidelines-avoid-magic-numbers,hicpp-*,misc-*,modernize-*,-modernize-use-trailing-return-type,mpi-*,openmp-*,performance-*,portability-*,readability-*,-readability-identifier-length,-readability-magic-numbers,-readability-math-missing-parentheses"
+WarningsAsErrors: "mpi-*,openmp-*,performance-*"
+FormatStyle: llvm
+UseColor: true
