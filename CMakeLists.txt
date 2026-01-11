@@ -19,6 +19,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # COMPILATION FLAGS PART
+# always enable the -fPIC flag
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+# use colorful diagnostics
+add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-fdiagnostics-color=always>")
 # customized debug flags: default one only includes -g
 set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall -Wextra -Wpedantic -Werror")
 # print fundamental flags: -g, -O, and whether -DNDEBUG
