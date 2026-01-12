@@ -3,8 +3,8 @@
  * @brief ID selector and reader.
  */
 
-#ifndef SELECTOR_HEADER
-#define SELECTOR_HEADER
+#pragma once
+
 #include "para.hpp"
 #include <memory>
 #include <string>
@@ -60,4 +60,3 @@ private:
 };
 
 }  // namespace otf
-#endif

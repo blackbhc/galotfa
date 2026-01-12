@@ -3,8 +3,8 @@
  * @brief Some utilities for recenter of N-body system.
  */
 
-#ifndef RECENTER_HEADER
-#define RECENTER_HEADER
+#pragma once
+
 #include <cstdint>
 #include <memory>
 
@@ -51,4 +51,3 @@ private:
 };
 
 }  // namespace otf
-#endif

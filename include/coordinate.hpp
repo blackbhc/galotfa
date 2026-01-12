@@ -3,8 +3,8 @@
  * @brief Some functions of coordinate transformation.
  */
 
-#ifndef COORDINATES_HEADER
-#define COORDINATES_HEADER
+#pragma once
+
 #include <cstdint>
 enum class coordate_type : std::uint8_t
 {
@@ -38,4 +38,3 @@ private:
     static void sph2cyl(double data[3]);
     static void cyl2sph(double data[3]);
 };
-#endif

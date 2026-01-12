@@ -47,7 +47,7 @@ void print_global_part(otf::runtime_para& para)
 void print_orbital_part(otf::runtime_para& para)
 {
     INFO("ORBITAL LOG PARAMETERS:");
-    if (para.orbit->m_enable)
+    if (para.orbit->enable())
     {
         INFO("Orbital log is enabled.");
     }
@@ -55,14 +55,14 @@ void print_orbital_part(otf::runtime_para& para)
     {
         return;
     }
-    INFO("Log period: %d", para.orbit->period);
+    INFO("Log period: %d", para.orbit->period());
     INFO("Particle types to be logged:");
-    for (auto& id : para.orbit->sampleTypes)
+    for (const auto& id : para.orbit->sampleTypes())
     {
         INFO("%d ", id);
     }
     INFO("Method of id selection: ");
-    switch (para.orbit->method)
+    switch (para.orbit->method())
     {
     case otf::orbit::id_selection_method::RANDOM:
         INFO("Random selection.");
@@ -73,8 +73,8 @@ void print_orbital_part(otf::runtime_para& para)
     default:
         ERROR("Get into an unexpected branch!");
     }
-    INFO("Random selection fraction: %g.", para.orbit->fraction);
-    INFO("ID list filename : %s", para.orbit->idfile.c_str());
+    INFO("Random selection fraction: %g.", para.orbit->fraction());
+    INFO("ID list filename : %s", para.orbit->idfile().c_str());
 
     if (para.orbit->recenter.enable)
     {
@@ -285,7 +285,7 @@ void monitor::main_analysis_api(const double   time,
     }
 
     // First: orbital logs part
-    if (para.orbit->m_enable)
+    if (para.orbit->enable())
     {
         orbital_log(time, particleNumber, ids, partTypes, masses, coordinates,
                     velocities);
@@ -322,7 +322,8 @@ void monitor::orbital_log(const double   time,
                           const double*  coordinates,
                           const double*  velocities)
 {
-    if (stepCounter % para.orbit->period != 0)  // only log in the chosen steps
+    if (stepCounter % para.orbit->period()
+        != 0)  // only log in the chosen steps
     {
         return;
     }

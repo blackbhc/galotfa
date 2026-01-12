@@ -99,8 +99,10 @@ runtime_para::runtime_para(const std::string_view& tomlParaFile)
 
     // NOTE: if there is no any component and orbital logs are enables, then
     // toggle off the on-the-fly analysis
-    if (comps.size() == 0 and (not orbit->m_enable))
+    if (comps.size() == 0 and (not orbit->enable()))
+    {
         enableOtf = false;
+    }
 }
 
 component::component(string_view& compName, toml::table& compNodeTable)
@@ -286,8 +288,8 @@ orbit::orbit(toml::table& orbitNode)
     }
 
     // period
-    period = *orbitNode["period"].value<int>();
-    if (not(period > 0))
+    m_period = *orbitNode["period"].value<int>();
+    if (not(m_period > 0))
     {
         int rank;
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -303,7 +305,7 @@ orbit::orbit(toml::table& orbitNode)
         arr->for_each([this](auto&& el) {
             if constexpr (toml::is_number<decltype(el)>)
             {
-                sampleTypes.push_back(*el);
+                m_sampleTypes.push_back(*el);
             }
         });
     }
@@ -311,11 +313,11 @@ orbit::orbit(toml::table& orbitNode)
     auto str = *orbitNode["method"].value<string_view>();
     if (str == "txtfile")
     {
-        method = id_selection_method::TXTFILE;
+        m_method = id_selection_method::TXTFILE;
     }
     else if (str == "random")
     {
-        method = id_selection_method::RANDOM;
+        m_method = id_selection_method::RANDOM;
     }
     else
     {
@@ -327,17 +329,22 @@ orbit::orbit(toml::table& orbitNode)
         exit(-1);
     }
 
-    if (method == id_selection_method::RANDOM)
+    if (m_method == id_selection_method::RANDOM)
     {
         // random selection
-        fraction = *orbitNode["fraction"].value<double>();
-        assert(fraction > 0 and fraction <= 1);
+        m_fraction = *orbitNode["fraction"].value<double>();
+        auto frac  = fraction();
+        if (frac <= 0 or frac > 1)
+        {
+            throw std::runtime_error(
+                "The fraction for random selection must be in (0, 1]");
+        }
     }
     else
     {
         // By a text file
         const string tmpIdFileName(*orbitNode["idfile"].value<string_view>());
-        this->idfile = tmpIdFileName;
+        m_idfile = tmpIdFileName;
     }
 
     // recenter parameters

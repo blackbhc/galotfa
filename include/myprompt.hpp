@@ -3,8 +3,8 @@
  * @brief Define some utility functions for convenient print.
  */
 
-#ifndef MY_UTILS_HEADER
-#define MY_UTILS_HEADER
+#pragma once
+
 #include <cstdio>
 #include <mpi.h>
 
@@ -77,4 +77,3 @@
         std::fprintf(stderr, "[ERROR]: " __VA_ARGS__);                     \
         std::fprintf(stderr, "\n");                                        \
     }
-#endif

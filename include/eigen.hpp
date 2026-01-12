@@ -4,8 +4,8 @@
  * 3x3 matrices.
  */
 
-#ifndef MY_EIGEN_HEADER
-#define MY_EIGEN_HEADER
+#pragma once
+
 /**
  * @class eigen
  * @brief Wrapper class of the eigen-system.
@@ -24,5 +24,3 @@ public:
                               double eigenValues[vecDim],
                               double eigenVectors[matrixDim]);
 };
-
-#endif

@@ -3,8 +3,8 @@
  * @brief The public C style API of the galotfa library.
  */
 
-#ifndef GALOTFA_H_INCLUDED
-#define GALOTFA_H_INCLUDED
+#pragma once
+
 /**
  * @brief api for n body simulation, without sub-grid physics parameters and
  * redshifts.
@@ -26,5 +26,3 @@ extern "C" void OnTheFly_Analysis_Nbody(const double   currentTime,
                                         const double*  potentials,
                                         const double*  coordinates,
                                         const double*  velocities);
-
-#endif

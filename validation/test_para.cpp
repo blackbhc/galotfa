@@ -27,19 +27,19 @@ int main()
     INFO("Max iteration [%u], epsilon [%g]", para.maxIter, para.epsilon);
 
     INFO("ORBITAL LOG PARAMETERS:");
-    if (para.orbit->m_enable)
+    if (para.orbit->enable())
     {
         INFO("Orbital log is enabled.");
     }
-    INFO("Log period: %d", para.orbit->period);
+    INFO("Log period: %d", para.orbit->period());
     INFO("Particle types to be logged:");
-    for (auto& id : para.orbit->sampleTypes)
+    for (const auto& id : para.orbit->sampleTypes())
     {
         INFO("%d ", id);
     }
 
     INFO("Method of id determination: ");
-    switch (para.orbit->method)
+    switch (para.orbit->method())
     {
     case orbit::id_selection_method::RANDOM:
         INFO("Random selection.");
@@ -50,8 +50,8 @@ int main()
     default:
         ERROR("Get into an unexpected branch!");
     }
-    INFO("Random selection fraction: %g.", para.orbit->fraction);
-    INFO("ID list filename : %s", para.orbit->idfile.c_str());
+    INFO("Random selection fraction: %g.", para.orbit->fraction());
+    INFO("ID list filename : %s", para.orbit->idfile().c_str());
 
     if (para.orbit->recenter.enable)
     {

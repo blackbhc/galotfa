@@ -136,7 +136,7 @@ auto orbit_selector::extract_target_ids(const unsigned particleNumber,
 {
     // get the target id list based on specified parameters
     vector<int> targetIDs;
-    if (para.orbit->method
+    if (para.orbit->method()
         == otf::orbit::id_selection_method::RANDOM)  // by random sampling
     {
         // restore the raw ids into an vector
@@ -146,8 +146,9 @@ auto orbit_selector::extract_target_ids(const unsigned particleNumber,
             rawIds[i] = particleID[i];
         }
         // random sampling
-        auto localTargetIDs = id_sample(
-            rawIds, partType, para.orbit->sampleTypes, para.orbit->fraction);
+        auto localTargetIDs =
+            id_sample(rawIds, partType, para.orbit->sampleTypes(),
+                      para.orbit->fraction());
 
         // gather the target ids in each rank to one vector
         int rank;
@@ -193,7 +194,7 @@ auto orbit_selector::extract_target_ids(const unsigned particleNumber,
     else  // txt file
     {
         // read from a txt file
-        targetIDs = id_read(para.orbit->idfile);
+        targetIDs = id_read(para.orbit->idfile());
     }
     return targetIDs;
 }
@@ -217,7 +218,7 @@ auto orbit_selector::select(const unsigned particleNumber,
                             const double*  velocity) const
     -> unique_ptr<dataContainer>
 {
-    if (not para.orbit->m_enable)
+    if (not para.orbit->enable())
     {
         // if the orbital log is not enabled, just ignore the function
         return nullptr;

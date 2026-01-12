@@ -3,8 +3,8 @@
  * @brief Organizer of the hdf5 output.
  */
 
-#ifndef MY_H5_OUTPUT_HEADER
-#define MY_H5_OUTPUT_HEADER
+#pragma once
+
 #include "H5Ipublic.h"
 #include "H5public.h"
 #include <memory>
@@ -91,4 +91,3 @@ private:
 
 void Backup_Old_Logs_If_Necessary(const std::string& dir,
                                   const std::string& filename);
-#endif

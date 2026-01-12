@@ -3,8 +3,8 @@
  * @brief The parameter parser and its utils.
  */
 
-#ifndef PARA_HEADER
-#define PARA_HEADER
+#pragma once
+
 #include "recenter.hpp"
 #include "toml.hpp"
 #include <cstdint>
@@ -125,7 +125,7 @@ struct component
 class orbit
 {
 public:
-    orbit(toml::table& orbitNodeTable);
+    explicit orbit(toml::table& orbitNodeTable);
     // method for id log: TXTFILE to use a text file of id list, and RANDOM for
     // random selection according to specified parameters.
     enum class id_selection_method : std::uint8_t
@@ -133,15 +133,26 @@ public:
         TXTFILE = 0,
         RANDOM
     };
-
-    bool                m_enable;  // enable orbital log
-    int                 period;    // log period
-    id_selection_method method;    // id determination method
-    std::string         idfile =
-        "not used";        // if method is txt file, give the file name
-    double fraction = -1;  // if method is random sample, give the fraction
-    std::vector<int>    sampleTypes;  // particle types to be sampled
+    [[nodiscard]] auto enable() const { return m_enable; }
+    [[nodiscard]] auto period() const { return m_period; }
+    [[nodiscard]] auto method() const { return m_method; }
+    [[nodiscard]] auto idfile() const { return m_idfile; }
+    [[nodiscard]] auto fraction() const { return m_fraction; }
+    [[nodiscard]] auto sampleTypes() const -> const auto&
+    {
+        return m_sampleTypes;
+    }
+    // TODO: move this to private
     orbit_recenter_para recenter;  // whether recenter the coordinate of orbits
+
+
+private:
+    bool                m_enable;  // enable orbital log
+    int                 m_period;  // log period
+    id_selection_method m_method;  // id determination method
+    std::string         m_idfile;  // if method is txt file, give the file name
+    double m_fraction = -1;  // if method is random sample, give the fraction
+    std::vector<int> m_sampleTypes;  // particle types to be sampled
 };
 
 /**
@@ -167,4 +178,3 @@ public:
 };
 
 }  // namespace otf
-#endif

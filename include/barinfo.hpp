@@ -3,8 +3,7 @@
  * @brief Wrapper class of bar quantification functions.
  */
 
-#ifndef BARINFO_HEADER
-#define BARINFO_HEADER
+#pragma once
 
 namespace otf {
 
@@ -34,4 +33,3 @@ public:
 };
 
 }  // namespace otf
-#endif

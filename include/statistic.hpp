@@ -4,8 +4,8 @@
  * now, mainly the 1D/2D evenly binning statistics for limited methods.
  */
 
-#ifndef STATISTIC_HEADER
-#define STATISTIC_HEADER
+#pragma once
+
 #include <cstdint>
 #include <memory>
 enum class statistic_method : std::uint8_t
@@ -130,4 +130,3 @@ private:
                          const double* data = nullptr)
         -> std::unique_ptr<double[]>;
 };
-#endif

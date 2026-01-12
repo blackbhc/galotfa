@@ -3,8 +3,8 @@
  * @brief The monitor/server of on-the-fly analysis.
  */
 
-#ifndef MONITOR_HEADER
-#define MONITOR_HEADER
+#pragma once
+
 #include "h5out.hpp"
 #include "para.hpp"
 #include <memory>
@@ -160,4 +160,3 @@ private:
 };
 
 }  // namespace otf
-#endif
