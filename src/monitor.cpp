@@ -24,7 +24,7 @@ using namespace std;
  *
  * @param para reference of the runtime parameter
  */
-void print_global_part(otf::runtime_para& para)
+void print_global_part(otf::RuntimePara& para)
 {
     INFO("GLOBAL PARAMETERS:");
     if (para.enableOtf())
@@ -45,7 +45,7 @@ void print_global_part(otf::runtime_para& para)
  *
  * @param para reference of the runtime parameter
  */
-void print_orbital_part(otf::runtime_para& para)
+void print_orbital_part(otf::RuntimePara& para)
 {
     INFO("ORBITAL LOG PARAMETERS:");
     if (para.orbit->enable())
@@ -109,7 +109,7 @@ void print_orbital_part(otf::runtime_para& para)
  *
  * @param para reference of the runtime parameter
  */
-void print_component_part(otf::runtime_para& para)
+void print_component_part(otf::RuntimePara& para)
 {
     INFO("COMPONENT PARAMETERS");
     for (auto& comp : para.comps)
@@ -199,7 +199,7 @@ void print_component_part(otf::runtime_para& para)
  *
  * @param para reference of the runtime parameter
  */
-void print_para_info(otf::runtime_para& para)
+void print_para_info(otf::RuntimePara& para)
 {
     // print global parameters
     print_global_part(para);
@@ -215,7 +215,7 @@ namespace otf {
 
 monitor::monitor(const string_view& tomlParaFile)
     : mpiRank(-1), mpiSize(0), isRootRank(false), stepCounter(0),
-      mpiInitialzedByMonitor(false), para(runtime_para(tomlParaFile)),
+      mpiInitialzedByMonitor(false), para(RuntimePara(tomlParaFile)),
       h5Organizer(nullptr)
 {
     if (not para.enableOtf())  // if the on-the-fly analysis is not enabled
@@ -387,7 +387,7 @@ auto monitor::component_data_extract(unsigned                    particleNumber,
                                      const double*               potentials,
                                      const double*               coordinates,
                                      const double*               velocities,
-                                     unique_ptr<otf::component>& comp)
+                                     unique_ptr<otf::Component>& comp)
     -> monitor::compDataContainer
 {
     unsigned       count = 0;
@@ -469,7 +469,7 @@ auto monitor::component_data_extract(unsigned                    particleNumber,
  */
 auto monitor::component_data_analyze(
     monitor::compDataContainer&      dataContainer,
-    std::unique_ptr<otf::component>& comp) const -> monitor::compResContainer
+    std::unique_ptr<otf::Component>& comp) const -> monitor::compResContainer
 {
     compResContainer compRes;
 
@@ -513,7 +513,7 @@ auto monitor::component_data_analyze(
  * @param comp wrapper of parameters for analysis of a single component
  */
 void monitor::recenter_coordinate(monitor::compDataContainer& dataContainer,
-                                  std::unique_ptr<otf::component>& comp,
+                                  std::unique_ptr<otf::Component>& comp,
                                   compResContainer&                res)
 {
     /* in galotfa.toml:
@@ -580,7 +580,7 @@ void monitor::recenter_coordinate(monitor::compDataContainer& dataContainer,
  * @param comp wrapper of parameters for analysis of a single component
  */
 void monitor::align_angular_momentum(monitor::compDataContainer& dataContainer,
-                                     std::unique_ptr<otf::component>& comp)
+                                     std::unique_ptr<otf::Component>& comp)
 {
     // array of the total angular momentum
     double Ltot[3] = {0, 0, 0};
@@ -700,7 +700,7 @@ void monitor::align_angular_momentum(monitor::compDataContainer& dataContainer,
  * @param comp wrapper of parameters for analysis of a single component
  */
 void monitor::align_inertia_tensor(monitor::compDataContainer& dataContainer,
-                                   std::unique_ptr<otf::component>& comp)
+                                   std::unique_ptr<otf::Component>& comp)
 {
     // get the intertia tensor
     double inertiaTensor[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -830,7 +830,7 @@ void monitor::align_inertia_tensor(monitor::compDataContainer& dataContainer,
  * @param res container of the analysis results
  */
 void monitor::bar_info(monitor::compDataContainer&      dataContainer,
-                       std::unique_ptr<otf::component>& comp,
+                       std::unique_ptr<otf::Component>& comp,
                        compResContainer&                res)
 {
     // NOTE: bar angle
@@ -950,7 +950,7 @@ void monitor::bar_info(monitor::compDataContainer&      dataContainer,
  * @param res container of the analysis results
  */
 void monitor::a2_profile(monitor::compDataContainer&      dataContainer,
-                         std::unique_ptr<otf::component>& comp,
+                         std::unique_ptr<otf::Component>& comp,
                          compResContainer&                res) const
 {
     // extracted data
@@ -1031,7 +1031,7 @@ void monitor::a2_profile(monitor::compDataContainer&      dataContainer,
  * @param res container of the analysis results
  */
 void monitor::image(monitor::compDataContainer&      dataContainer,
-                    std::unique_ptr<otf::component>& comp,
+                    std::unique_ptr<otf::Component>& comp,
                     compResContainer&                res) const
 {
     // extracted the xs, ys, zs for bin2d function
@@ -1087,7 +1087,7 @@ void monitor::component_analysis(double                      time,
                                  const double*               potentials,
                                  const double*               coordinates,
                                  const double*               velocities,
-                                 unique_ptr<otf::component>& comp) const
+                                 unique_ptr<otf::Component>& comp) const
 {
     if (stepCounter % comp->period
         != 0)  // only analyze the data in the specified steps

@@ -12,7 +12,7 @@ using namespace std;
 
 namespace otf {
 
-runtime_para::runtime_para(const std::string_view& tomlParaFile)
+RuntimePara::RuntimePara(const std::string_view& tomlParaFile)
 {
     if (access(tomlParaFile.data(), F_OK) != 0)
     {
@@ -71,7 +71,7 @@ runtime_para::runtime_para(const std::string_view& tomlParaFile)
             if (key_view.substr(0, 9) == "component")
             {
                 this->comps[string(key_view)] =
-                    make_unique<otf::component>(key_view, *value.as_table());
+                    make_unique<otf::Component>(key_view, *value.as_table());
             }
         }
     });
@@ -106,7 +106,7 @@ runtime_para::runtime_para(const std::string_view& tomlParaFile)
     }
 }
 
-component::component(string_view& compName, toml::table& compNodeTable)
+Component::Component(string_view& compName, toml::table& compNodeTable)
 {
     this->compName = compName;
     // particle types in this component

@@ -22,7 +22,7 @@ constexpr auto vecDim = 3;
  * @brief The parameters used for recenter.
  *
  */
-struct recenter_para
+struct RecenterPara
 {
     bool   enable;
     double radius;                // enclose radius used for coordinate recenter
@@ -35,7 +35,7 @@ struct recenter_para
  * @brief The parameters used for alignment.
  *
  */
-struct align_para
+struct AlignPara
 {
     bool   enable;
     double radius;  // enclosing radius of the inertia tensor calculation
@@ -46,7 +46,7 @@ struct align_para
  * @brief The parameters used for image calculation.
  *
  */
-struct image_para
+struct ImagePara
 {
     bool     enable;
     double   halfLength;  // half length of the box size to be plotted
@@ -54,11 +54,11 @@ struct image_para
 };
 
 /**
- * @class basic_bar_para
+ * @class BarPara
  * @brief The parameters used for bar info calculation, Sbar et al.
  *
  */
-struct basic_bar_para
+struct BarPara
 {
     bool   enable;
     double rmin;
@@ -83,7 +83,7 @@ struct a2_profile_para
  * @brief The parameters used for recenter in orbital log.
  *
  */
-struct orbit_recenter_para : recenter_para
+struct OrbitRecenterPara : RecenterPara
 {
     // the anchor type of particles used for recenter
     std::vector<unsigned> anchorIds;
@@ -101,19 +101,19 @@ enum class coordinate_frame : std::uint8_t
  * @brief The wrapper of parameters used for each component.
  *
  */
-struct component
+struct Component
 {
-    component(std::string_view& compName, toml::table& compNodeTable);
+    Component(std::string_view& compName, toml::table& compNodeTable);
     std::string           compName;  // name of the component
     std::vector<unsigned> types;     // particle types in this component
     int                   period;    // analysis period
-    recenter_para         recenter;  // parameter of coordinate recenter
+    RecenterPara          recenter;  // parameter of coordinate recenter
     coordinate_frame      frame;     // coordinate frame type
-    align_para      align;  // whether align coordinates with the inertia tensor
-    image_para      image;  // parameter of the spatial image part
-    basic_bar_para  sBar;   // bar strength parameter
-    basic_bar_para  barAngle;   // bar angle parameter
-    basic_bar_para  sBuckle;    // buckling strength parameter
+    AlignPara       align;  // whether align coordinates with the inertia tensor
+    ImagePara       image;  // parameter of the spatial image part
+    BarPara         sBar;   // bar strength parameter
+    BarPara         barAngle;   // bar angle parameter
+    BarPara         sBuckle;    // buckling strength parameter
     a2_profile_para A2profile;  // A2(R) profile parameter
 };
 
@@ -143,7 +143,7 @@ public:
         return m_sampleTypes;
     }
     // TODO: move this to private
-    orbit_recenter_para recenter;  // whether recenter the coordinate of orbits
+    OrbitRecenterPara recenter;  // whether recenter the coordinate of orbits
 
 
 private:
@@ -161,10 +161,10 @@ private:
  * rank.
  *
  */
-class runtime_para
+class RuntimePara
 {
 public:
-    explicit runtime_para(const std::string_view& tomlParaFile);
+    explicit RuntimePara(const std::string_view& tomlParaFile);
     [[nodiscard]] auto enableOtf() const { return m_enableOtf; }
     [[nodiscard]] auto outputDir() const { return m_outputDir; }
     [[nodiscard]] auto filename() const { return m_filename; }
@@ -173,7 +173,7 @@ public:
 
     // TODO: make the following two members private
     // hash map of parameter for each component
-    std::unordered_map<std::string, std::unique_ptr<otf::component>> comps;
+    std::unordered_map<std::string, std::unique_ptr<otf::Component>> comps;
     // parameter pointer of orbital logs
     std::unique_ptr<otf::orbit>                                      orbit;
 

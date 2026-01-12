@@ -46,7 +46,7 @@ private:
     unsigned stepCounter;             // counter of the synchronized time step
     bool     mpiInitialzedByMonitor;  // whether the MPI_init is called by the
                                       // monitor object
-    runtime_para              para;   // ptr to the runtime paramter
+    RuntimePara               para;   // ptr to the runtime paramter
     std::vector<std::string>  orbitDatasetNames;
     static constexpr unsigned orbitPointDim = 7;
     using orbitPoint                        = struct
@@ -110,11 +110,11 @@ private:
                                        const double* potentials,
                                        const double* coordinates,
                                        const double* velocities,
-                                       std::unique_ptr<otf::component>& comp)
+                                       std::unique_ptr<otf::Component>& comp)
         -> monitor::compDataContainer;
     // analyze the data of a single component
     auto component_data_analyze(monitor::compDataContainer&      dataContainer,
-                                std::unique_ptr<otf::component>& comp) const
+                                std::unique_ptr<otf::Component>& comp) const
         -> monitor::compResContainer;
     // NOTE: API to analyze the data of a single component
     void component_analysis(double                           time,
@@ -124,35 +124,35 @@ private:
                             const double*                    potentials,
                             const double*                    coordinates,
                             const double*                    velocities,
-                            std::unique_ptr<otf::component>& comp) const;
+                            std::unique_ptr<otf::Component>& comp) const;
 
     // NOTE: APIs used in component analysis
 
     // recenter the coordinates
     static void recenter_coordinate(monitor::compDataContainer& dataContainer,
-                                    std::unique_ptr<otf::component>& comp,
+                                    std::unique_ptr<otf::Component>& comp,
                                     compResContainer&                res);
     // align the z axis to the direction of total angular momentum
     static void
     align_angular_momentum(monitor::compDataContainer&      dataContainer,
-                           std::unique_ptr<otf::component>& comp);
+                           std::unique_ptr<otf::Component>& comp);
     // align the coordinates to the eigenvalues of the inertia tensor
     // NOTE: This is the legacy align_coordinate API (replaced by
     // align_angular_momentum in current version), and the code is remained for
     // possible future usage on bar alignment.
     static void align_inertia_tensor(monitor::compDataContainer& dataContainer,
-                                     std::unique_ptr<otf::component>& comp);
+                                     std::unique_ptr<otf::Component>& comp);
     // bar info calculation
     static void bar_info(monitor::compDataContainer&      dataContainer,
-                         std::unique_ptr<otf::component>& comp,
+                         std::unique_ptr<otf::Component>& comp,
                          compResContainer&                res);
     // radial A2 profile calculation
     void        a2_profile(monitor::compDataContainer&      dataContainer,
-                           std::unique_ptr<otf::component>& comp,
+                           std::unique_ptr<otf::Component>& comp,
                            compResContainer&                res) const;
     // image calculation
     void        image(monitor::compDataContainer&      dataContainer,
-                      std::unique_ptr<otf::component>& comp,
+                      std::unique_ptr<otf::Component>& comp,
                       compResContainer&                res) const;
     // the smart pointer to the HDF5 file organizer, it is more memory efficient
     // in the none-root rank

@@ -3,6 +3,7 @@
  * @brief Test the orbital particle selection.
  */
 
+#include "para.hpp"
 #define DEBUG 1
 #include "../include/myprompt.hpp"
 #include "../include/selector.hpp"
@@ -53,7 +54,7 @@ int main(int argc, char* argv[])
         mockVel[i] = pow(-1, i) * (( double )i + 0.3);
     }
 
-    runtime_para para("../validation/orbit_select_test.toml");
+    RuntimePara para("../validation/orbit_select_test.toml");
     if (not para.orbit->enable())
     {
         MPI_Finalize();

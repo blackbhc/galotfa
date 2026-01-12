@@ -117,7 +117,7 @@ auto orbit_selector::id_read(const string& idFilename) -> vector<int>
     return ids;
 }
 
-orbit_selector::orbit_selector(const runtime_para& para) : para(para) { ; }
+orbit_selector::orbit_selector(const RuntimePara& para) : para(para) { ; }
 
 /**
  * @brief extract the target ids of orbital log based on the specified

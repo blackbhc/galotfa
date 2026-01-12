@@ -35,7 +35,7 @@ public:
 class orbit_selector
 {
 public:
-    orbit_selector(const runtime_para& para);
+    orbit_selector(const RuntimePara& para);
     auto select(unsigned      particleNumber,
                 const int*    particleID,
                 const int*    partType,
@@ -48,11 +48,11 @@ public:
 #else
 private:
 #endif
-    const runtime_para& para;
-    static auto         id_sample(const std::vector<int>& rawIds,
-                                  const int*              types,
-                                  const std::vector<int>& sampleTypes,
-                                  double                  fraction) -> std::vector<int>;
+    const RuntimePara& para;
+    static auto        id_sample(const std::vector<int>& rawIds,
+                                 const int*              types,
+                                 const std::vector<int>& sampleTypes,
+                                 double                  fraction) -> std::vector<int>;
     static auto id_read(const std::string& idFilename) -> std::vector<int>;
     auto        extract_target_ids(unsigned   particleNumber,
                                    const int* particleID,

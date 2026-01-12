@@ -11,7 +11,7 @@ using namespace otf;
 
 int main()
 {
-    runtime_para para("../examples/galotfa.toml");
+    RuntimePara para("../examples/galotfa.toml");
 
     INFO("GLOBAL PARAMETERS:");
     if (para.enableOtf())
