@@ -27,7 +27,7 @@ using namespace std;
 void print_global_part(otf::runtime_para& para)
 {
     INFO("GLOBAL PARAMETERS:");
-    if (para.enableOtf)
+    if (para.enableOtf())
     {
         INFO("On the fly analysis is enabled.");
     }
@@ -35,8 +35,9 @@ void print_global_part(otf::runtime_para& para)
     {
         INFO("On the fly analysis is forbidden.");
     }
-    INFO("Output to  [%s]/[%s]", para.outputDir.c_str(), para.fileName.c_str());
-    INFO("Max iteration [%u], epsilon [%g]", para.maxIter, para.epsilon);
+    INFO("Output to  [%s]/[%s]", para.outputDir().c_str(),
+         para.filename().c_str());
+    INFO("Max iteration [%u], epsilon [%g]", para.maxIter(), para.epsilon());
 }
 
 /**
@@ -217,7 +218,7 @@ monitor::monitor(const string_view& tomlParaFile)
       mpiInitialzedByMonitor(false), para(runtime_para(tomlParaFile)),
       h5Organizer(nullptr)
 {
-    if (not para.enableOtf)  // if the on-the-fly analysis is not enabled
+    if (not para.enableOtf())  // if the on-the-fly analysis is not enabled
     {
         return;
     }
@@ -246,7 +247,7 @@ monitor::monitor(const string_view& tomlParaFile)
     if (isRootRank)
     {
         print_para_info(para);
-        h5Organizer = make_unique<h5_out>(para.outputDir, para.fileName);
+        h5Organizer = make_unique<h5_out>(para.outputDir(), para.filename());
     }
 }
 
@@ -279,7 +280,7 @@ void monitor::main_analysis_api(const double   time,
                                 const double*  coordinates,
                                 const double*  velocities)
 {
-    if (not para.enableOtf)
+    if (not para.enableOtf())
     {
         return;
     }

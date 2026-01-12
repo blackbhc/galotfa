@@ -164,17 +164,26 @@ private:
 class runtime_para
 {
 public:
-    runtime_para(const std::string_view& tomlParaFile);
-    bool        enableOtf;  // whether enable on-the-fly analysis
-    std::string outputDir;  // output directory of the logs
-    std::string fileName;   // prefix of the log file
-    unsigned    maxIter;    // specify the maximal iteration times
-    double epsilon;  // specify the equal threshold of floating-point numbers
+    explicit runtime_para(const std::string_view& tomlParaFile);
+    [[nodiscard]] auto enableOtf() const { return m_enableOtf; }
+    [[nodiscard]] auto outputDir() const { return m_outputDir; }
+    [[nodiscard]] auto filename() const { return m_filename; }
+    [[nodiscard]] auto maxIter() const { return m_maxIter; }
+    [[nodiscard]] auto epsilon() const { return m_epsilon; }
 
+    // TODO: make the following two members private
     // hash map of parameter for each component
     std::unordered_map<std::string, std::unique_ptr<otf::component>> comps;
     // parameter pointer of orbital logs
     std::unique_ptr<otf::orbit>                                      orbit;
+
+private:
+    bool        m_enableOtf;   // whether enable on-the-fly analysis
+    std::string m_outputDir;   // output directory of the logs
+    std::string m_filename;    // prefix of the log file
+    int         m_maxIter{0};  // specify the maximal iteration times
+    // the equal threshold of floating-point numbers
+    double      m_epsilon{0};
 };
 
 }  // namespace otf

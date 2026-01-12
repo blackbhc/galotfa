@@ -14,7 +14,7 @@ int main()
     runtime_para para("../examples/galotfa.toml");
 
     INFO("GLOBAL PARAMETERS:");
-    if (para.enableOtf)
+    if (para.enableOtf())
     {
         INFO("On the fly analysis is enabled.");
     }
@@ -23,8 +23,9 @@ int main()
         INFO("On the fly analysis is forbidden.");
     }
 
-    INFO("Output to  [%s]/[%s]", para.outputDir.c_str(), para.fileName.c_str());
-    INFO("Max iteration [%u], epsilon [%g]", para.maxIter, para.epsilon);
+    INFO("Output to  [%s]/[%s]", para.outputDir().c_str(),
+         para.filename().c_str());
+    INFO("Max iteration [%u], epsilon [%g]", para.maxIter(), para.epsilon());
 
     INFO("ORBITAL LOG PARAMETERS:");
     if (para.orbit->enable())

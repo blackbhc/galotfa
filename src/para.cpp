@@ -23,8 +23,8 @@ runtime_para::runtime_para(const std::string_view& tomlParaFile)
     toml::table paraTable = toml::parse_file(tomlParaFile);
 
     // check whether enable the on-the-fly analysis
-    enableOtf = *paraTable["global"]["enable"].value<bool>();
-    if (not enableOtf)
+    m_enableOtf = *paraTable["global"]["enable"].value<bool>();
+    if (not enableOtf())
     {
         INFO("The orbital log is not enabled");
         return;
@@ -35,14 +35,15 @@ runtime_para::runtime_para(const std::string_view& tomlParaFile)
         *paraTable["global"]["filename"].value<string_view>());
     const string tmpDir(*paraTable["global"]["outdir"].value<string_view>());
     // fileName                              = std::move( tmpFileName );
-    outputDir                         = tmpDir;
-    fileName                          = tmpFileName;
+    m_outputDir                       = tmpDir;
+    m_filename                        = tmpFileName;
     constexpr unsigned defaultMaxIter = 25;
     constexpr double   defaultEpsilon =
         1e-8;  // floating-point number equal threshold
-    maxIter = paraTable["global"]["maxiter"].value_or(defaultMaxIter);
-    epsilon = paraTable["global"]["outdir"].value_or(defaultEpsilon);
-    if (not(maxIter > 0))
+    m_maxIter = static_cast<int>(
+        paraTable["global"]["maxiter"].value_or(defaultMaxIter));
+    m_epsilon = paraTable["global"]["outdir"].value_or(defaultEpsilon);
+    if (not(m_maxIter > 0))
     {
         int rank;
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -50,7 +51,7 @@ runtime_para::runtime_para(const std::string_view& tomlParaFile)
         throw;
     }
 
-    if (not(epsilon > 0))
+    if (not(m_epsilon > 0))
     {
         int rank;
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -101,7 +102,7 @@ runtime_para::runtime_para(const std::string_view& tomlParaFile)
     // toggle off the on-the-fly analysis
     if (comps.size() == 0 and (not orbit->enable()))
     {
-        enableOtf = false;
+        m_enableOtf = false;
     }
 }
 
